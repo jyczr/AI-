@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NTNU Money</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="main-container">
+        <header>
+            <img src="assets/logo.png" alt="NTNU Money Logo" class="logo">
+            <h1>NTNU Money</h1>
+        </header>
+        <div id="welcomeSection">
+            <h2>歡迎使用 NTNU Money</h2>
+            <p>簡單記帳，輕鬆理財！</p>
+            <button id="enterSystemBtn">進入系統</button>
+        </div>
+        <div id="loginSection" class="hidden">
+            <h2>登入</h2>
+            <input type="text" id="loginUsername" placeholder="使用者名稱">
+            <input type="password" id="loginPassword" placeholder="密碼">
+            <button id="loginBtn">登入</button>
+            <p>還沒有帳號？<span id="showRegisterBtn" class="link">點此註冊</span></p>
+        </div>
+        <div id="registerSection" class="hidden">
+            <h2>註冊</h2>
+            <input type="text" id="registerUsername" placeholder="使用者名稱">
+            <input type="password" id="registerPassword" placeholder="密碼">
+            <button id="registerBtn">註冊</button>
+            <p>已有帳號？<span id="showLoginBtn" class="link">點此登入</span></p>
+        </div>
+        <div id="userInfo" class="user-info hidden">
+            <span id="usernameDisplay"></span>
+            <button id="logoutBtn">登出</button>
+            <button id="profileBtn">個人資訊</button>
+        </div>
+        <div id="appSection" class="hidden">
+            <div class="app-container">
+                <div class="sidebar">
+                    <button id="recordBtn"><i class="fas fa-book"></i> 記帳</button>
+                    <button id="billReminderBtn"><i class="fas fa-bell"></i> 帳單提醒</button>
+                    <button id="budgetBtn"><i class="fas fa-wallet"></i> 預算設定</button>
+                    <button id="goalBtn"><i class="fas fa-bullseye"></i> 理財目標</button>
+                    <button id="analysisBtn"><i class="fas fa-chart-pie"></i> 消費分析</button>
+                    <button id="categoryTagBtn"><i class="fas fa-tags"></i> 分類與標籤</button>
+                </div>
+                <div class="content">
+                    <div id="recordSection" class="content-section active">
+                        <div class="container">
+                            <h2>新增記帳</h2>
+                            <select id="type">
+                                <option value="收入">收入</option>
+                                <option value="支出">支出</option>
+                            </select>
+                            <input type="number" id="amount" placeholder="輸入金額">
+                            <input type="datetime-local" id="date">
+                            <input type="text" id="location" placeholder="使用地點">
+                            <select id="category"></select>
+                            <select id="tags" multiple></select>
+                            <textarea id="description" placeholder="描述 (可選)"></textarea>
+                            <button id="addTransactionBtn">新增記帳</button>
+                            <button id="deleteSelectedBtn">刪除選擇</button>
+                        </div>
+                        <div class="total-card">
+                            <p>總收入: <span id="totalIncome">0</span></p>
+                            <p>總支出: <span id="totalExpense">0</span></p>
+                        </div>
+                        <div class="transaction-container">
+                            <h2>記帳紀錄</h2>
+                            <table class="transaction-table">
+                                <thead>
+                                    <tr>
+                                        <th><input type="checkbox" id="selectAll"></th>
+                                        <th>類型</th>
+                                        <th>分類</th>
+                                        <th>金額</th>
+                                        <th>日期</th>
+                                        <th>地點</th>
+                                        <th>標籤</th>
+                                        <th>描述</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transactionList"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div id="billReminderSection" class="content-section hidden">
+                        <div class="reminder-container">
+                            <h2>帳單提醒</h2>
+                            <button id="addBillBtn">新增帳單</button>
+                            <table class="transaction-table">
+                                <thead>
+                                    <tr>
+                                        <th>名稱</th>
+                                        <th>金額</th>
+                                        <th>到期日</th>
+                                        <th>狀態</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="billList"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div id="budgetSection" class="content-section hidden">
+                        <div class="budget-container">
+                            <h2>預算設定</h2>
+                            <button id="setBudgetBtn">設定本月預算</button>
+                            <p>本月預算: <span id="monthlyBudget">未設定</span></p>
+                            <p>本月支出: <span id="currentMonthExpense">0</span></p>
+                        </div>
+                    </div>
+                    <div id="goalSection" class="content-section hidden">
+                        <div class="goal-container">
+                            <h2>理財目標</h2>
+                            <button id="addGoalBtn">新增目標</button>
+                            <table class="transaction-table">
+                                <thead>
+                                    <tr>
+                                        <th>名稱</th>
+                                        <th>目標金額</th>
+                                        <th>目前進度</th>
+                                        <th>開始日期</th>
+                                        <th>結束日期</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="goalList"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div id="analysisSection" class="content-section hidden">
+                        <div class="analysis-container">
+                            <h2>消費分析</h2>
+                            <button id="analyzeBtn">分析消費</button>
+                            <div id="analysisResult"></div>
+                        </div>
+                    </div>
+                    <div id="categoryTagSection" class="content-section hidden">
+                        <div class="category-tag-container">
+                            <h2>分類與標籤管理</h2>
+                            <div>
+                                <h3>分類</h3>
+                                <input type="text" id="newCategory" placeholder="新分類名稱">
+                                <button id="addCategoryBtn">新增分類</button>
+                                <ul id="categoryList"></ul>
+                            </div>
+                            <div>
+                                <h3>標籤</h3>
+                                <input type="text" id="newTag" placeholder="新標籤名稱">
+                                <button id="addTagBtn">新增標籤</button>
+                                <ul id="tagList"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button id="exportBtn">匯出 Excel</button>
+        </div>
+        <div id="profileModal" class="modal">
+            <div class="modal-content">
+                <span class="close">×</span>
+                <h2>個人資訊</h2>
+                <input type="text" id="profileUsername" placeholder="使用者名稱" readonly>
+                <input type="text" id="profileEmail" placeholder="電子郵件">
+                <button id="saveProfileBtn">儲存</button>
+            </div>
+        </div>
+        <div id="billReminderModal" class="modal">
+            <div class="modal-content">
+                <span class="close">×</span>
+                <h2>新增帳單</h2>
+                <input type="text" id="billName" placeholder="帳單名稱">
+                <input type="number" id="billAmount" placeholder="金額">
+                <input type="date" id="billDueDate" placeholder="到期日期">
+                <button id="saveBillBtn">儲存</button>
+            </div>
+        </div>
+        <div id="editBillModal" class="modal">
+            <div class="modal-content">
+                <span class="close">×</span>
+                <h2>編輯帳單</h2>
+                <input type="hidden" id="editBillIndex">
+                <input type="text" id="editBillName" placeholder="帳單名稱">
+                <input type="number" id="editBillAmount" placeholder="金額">
+                <input type="date" id="editBillDueDate" placeholder="到期日期">
+                <button id="saveEditBillBtn">儲存修改</button>
+            </div>
+        </div>
+        <div id="budgetModal" class="modal">
+            <div class="modal-content">
+                <span class="close">×</span>
+                <h2>設定本月預算</h2>
+                <input type="number" id="budgetAmount" placeholder="預算金額">
+                <button id="saveBudgetBtn">儲存</button>
+                <button id="cancelBudgetBtn">取消預算</button>
+            </div>
+        </div>
+        <div id="goalModal" class="modal">
+            <div class="modal-content">
+                <span class="close">×</span>
+                <h2>新增理財目標</h2>
+                <input type="text" id="goalName" placeholder="目標名稱">
+                <input type="number" id="goalAmount" placeholder="目標金額">
+                <input type="date" id="goalStartDate" placeholder="開始日期">
+                <input type="date" id="goalEndDate" placeholder="結束日期">
+                <button id="saveGoalBtn">儲存</button>
+            </div>
+        </div>
+        <div id="editGoalModal" class="modal">
+            <div class="modal-content">
+                <span class="close">×</span>
+                <h2>編輯理財目標</h2>
+                <input type="hidden" id="editGoalIndex">
+                <input type="text" id="editGoalName" placeholder="目標名稱">
+                <input type="number" id="editGoalAmount" placeholder="目標金額">
+                <input type="date" id="editGoalStartDate" placeholder="開始日期">
+                <input type="date" id="editGoalEndDate" placeholder="結束日期">
+                <button id="saveEditGoalBtn">儲存修改</button>
+            </div>
+        </div>
+        <div id="editModal" class="modal">
+            <div class="modal-content">
+                <span class="close">×</span>
+                <h2>編輯記帳</h2>
+                <input type="hidden" id="editIndex">
+                <select id="editType">
+                    <option value="收入">收入</option>
+                    <option value="支出">支出</option>
+                </select>
+                <input type="number" id="editAmount" placeholder="輸入金額">
+                <input type="datetime-local" id="editDate">
+                <input type="text" id="editLocation" placeholder="使用地點">
+                <select id="editCategory"></select>
+                <select id="editTags" multiple></select>
+                <textarea id="editDescription" placeholder="描述 (可選)"></textarea>
+                <button id="saveEditBtn">儲存修改</button>
+            </div>
+        </div>
+        <div id="chartAnalysisModal" class="modal">
+            <div class="modal-content">
+                <span class="close">×</span>
+                <h2>圖表分析</h2>
+                <canvas id="spendingPieChart"></canvas>
+                <canvas id="incomeExpensePieChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <script src="js/main.js"></script>
+    <script src="js/login.js"></script>
+    <script src="js/transactions.js"></script>
+    <script src="js/profile.js"></script>
+    <script src="js/categories.js"></script>
+    <script src="js/bills.js"></script>
+    <script src="js/budget.js"></script>
+    <script src="js/goals.js"></script>
+    <script src="js/analysis.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/export.js"></script>
+</body>
+</html>
